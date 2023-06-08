@@ -107,7 +107,7 @@ class AstroHackDioTestCase(unittest.TestCase):
 
         fix_pointing_table(ms_name, reference_antenna)
 
-        mock_tables.taql.assert_called_once_with('select NAME from {table}'.format(table='./data/ea25_cal_small_after_fixed.split.ms/ANTENNA'))
+        mock_tables.taql.assert_called_once_with('select NAME from {table}'.format(table='ea25_cal_small_after_fixed.split.ms/ANTENNA'))
         mock_taql.getcol.assert_called_once_with('NAME')
         mock_tables.table.assert_called_once_with('./data/ea25_cal_small_after_fixed.split.ms/POINTING', readonly=False)
         mock_tables.table.return_value.getcol.assert_called_once_with('MESSAGE')

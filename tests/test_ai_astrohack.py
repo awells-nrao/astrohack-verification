@@ -95,6 +95,7 @@ class AstroHackDioTestCase(unittest.TestCase):
     def test_fix_pointing_table(self, mock_tables):
 
         datafolder = 'data'
+        resultsfolder = 'results'
         build_folder_structure(datafolder, resultsfolder)
         gdown_data(ms_name='ea25_cal_small_after_fixed.split.ms', download_folder=datafolder)
         ms_name = 'ea25_cal_small_after_fixed.split.ms'

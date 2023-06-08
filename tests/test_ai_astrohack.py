@@ -98,7 +98,7 @@ class AstroHackDioTestCase(unittest.TestCase):
         resultsfolder = 'results'
         build_folder_structure(datafolder, resultsfolder)
         gdown_data(ms_name='ea25_cal_small_after_fixed.split.ms', download_folder=datafolder)
-        ms_name = 'ea25_cal_small_after_fixed.split.ms'
+        ms_name = './data/ea25_cal_small_after_fixed.split.ms'
 
         reference_antenna = ['ant1', 'ant2']
 
@@ -107,9 +107,9 @@ class AstroHackDioTestCase(unittest.TestCase):
 
         fix_pointing_table(ms_name, reference_antenna)
 
-        mock_tables.taql.assert_called_once_with('select NAME from {table}'.format(table='ea25_cal_small_after_fixed.split.ms/ANTENNA'))
+        mock_tables.taql.assert_called_once_with('select NAME from {table}'.format(table='./data/ea25_cal_small_after_fixed.split.ms/ANTENNA'))
         mock_taql.getcol.assert_called_once_with('NAME')
-        mock_tables.table.assert_called_once_with('ea25_cal_small_after_fixed.split.ms/POINTING', readonly=False)
+        mock_tables.table.assert_called_once_with('./data/ea25_cal_small_after_fixed.split.ms/POINTING', readonly=False)
         mock_tables.table.return_value.getcol.assert_called_once_with('MESSAGE')
         mock_tables.table.return_value.addrows.assert_called_once_with(nrows=1)
         mock_tables.table.return_value.putcol.assert_called_once_with(columnname="MESSAGE", value='pnt_tbl:fixed', startrow=0)

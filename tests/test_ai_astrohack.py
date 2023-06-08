@@ -90,4 +90,22 @@ class MyModuleTestCase(unittest.TestCase):
         self.assertIsNone(result)
 
     @patch('my_module.tables')
-    def test_fix_pointing_table(self, mock_tables
+    def test_fix_pointing_table(self, mock_tables):
+        ms_name = 'path/to/measurement_set.ms'
+        reference_antenna = ['ant1', 'ant2']
+
+        mock_taql = Mock()
+        mock_tables.taql.return_value = mock_taql
+
+        fix_pointing_table(ms_name, reference_antenna)
+
+        mock_tables.taql.assert_called_once_with('select NAME from {table}'.format(table='path/to/measurement_set.ms/ANTENNA'))
+        mock_taql.getcol.assert_called_once_with('NAME')
+        mock_tables.table.assert_called_once_with('path/to/measurement_set.ms/POINTING', readonly=False)
+        mock_tables.table.return_value.getcol.assert_called_once_with('MESSAGE')
+        mock_tables.table.return_value.addrows.assert_called_once_with(nrows=1)
+        mock_tables.table.return_value.putcol.assert_called_once_with(columnname="MESSAGE", value='pnt_tbl:fixed', startrow=0)
+
+
+if __name__ == '__main__':
+    unittest.main()

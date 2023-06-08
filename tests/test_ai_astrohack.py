@@ -1,12 +1,14 @@
 import unittest
 from unittest.mock import patch
+from unittest.mock import Mock
 
 from astrohack.dio import open_holog, open_image, open_panel, open_pointing, fix_pointing_table
+from astrohack.gdown_utils import gdown_data, build_folder_structure
 
-
-class MyModuleTestCase(unittest.TestCase):
-    @patch('my_module._get_astrohack_logger')
-    @patch('my_module.AstrohackHologFile')
+class AstroHackDioTestCase(unittest.TestCase):
+    """
+    #@patch('astrohack._get_astrohack_logger')
+    @patch('astrohack.AstrohackHologFile')
     def test_open_holog(self, mock_holog_file, mock_logger):
         mock_logger.return_value = logger_mock = Mock()
         mock_holog_file.return_value._open.return_value = True
@@ -26,8 +28,8 @@ class MyModuleTestCase(unittest.TestCase):
         logger_mock.error.assert_called_once_with(f"Error opening holography file: {file}")
         self.assertIsNone(result)
 
-    @patch('my_module._get_astrohack_logger')
-    @patch('my_module.AstrohackImageFile')
+    #@patch('astrohack._get_astrohack_logger')
+    @patch('astrohack.AstrohackImageFile')
     def test_open_image(self, mock_image_file, mock_logger):
         mock_logger.return_value = logger_mock = Mock()
         mock_image_file.return_value._open.return_value = True
@@ -47,8 +49,8 @@ class MyModuleTestCase(unittest.TestCase):
         logger_mock.error.assert_called_once_with(f"Error opening holography image file: {file}")
         self.assertIsNone(result)
 
-    @patch('my_module._get_astrohack_logger')
-    @patch('my_module.AstrohackPanelFile')
+    #@patch('astrohack._get_astrohack_logger')
+    @patch('astrohack.AstrohackPanelFile')
     def test_open_panel(self, mock_panel_file, mock_logger):
         mock_logger.return_value = logger_mock = Mock()
         mock_panel_file.return_value._open.return_value = True
@@ -68,8 +70,8 @@ class MyModuleTestCase(unittest.TestCase):
         logger_mock.error.assert_called_once_with(f"Error opening holography panel file: {file}")
         self.assertIsNone(result)
 
-    @patch('my_module._get_astrohack_logger')
-    @patch('my_module.AstrohackPointFile')
+    #@patch('astrohack._get_astrohack_logger')
+    @patch('astrohack.AstrohackPointFile')
     def test_open_pointing(self, mock_point_file, mock_logger):
         mock_logger.return_value = logger_mock = Mock()
         mock_point_file.return_value._open.return_value = True
@@ -88,10 +90,15 @@ class MyModuleTestCase(unittest.TestCase):
 
         logger_mock.error.assert_called_once_with(f"Error opening holography pointing file: {file}")
         self.assertIsNone(result)
-
-    @patch('my_module.tables')
+    """
+    @patch('astrohack.tables')
     def test_fix_pointing_table(self, mock_tables):
-        ms_name = 'path/to/measurement_set.ms'
+
+        datafolder = 'data'
+        build_folder_structure(datafolder, resultsfolder)
+        gdown_data(ms_name='ea25_cal_small_after_fixed.split.ms', download_folder=datafolder)
+        ms_name = 'ea25_cal_small_after_fixed.split.ms'
+
         reference_antenna = ['ant1', 'ant2']
 
         mock_taql = Mock()
@@ -99,9 +106,9 @@ class MyModuleTestCase(unittest.TestCase):
 
         fix_pointing_table(ms_name, reference_antenna)
 
-        mock_tables.taql.assert_called_once_with('select NAME from {table}'.format(table='path/to/measurement_set.ms/ANTENNA'))
+        mock_tables.taql.assert_called_once_with('select NAME from {table}'.format(table='ea25_cal_small_after_fixed.split.ms/ANTENNA'))
         mock_taql.getcol.assert_called_once_with('NAME')
-        mock_tables.table.assert_called_once_with('path/to/measurement_set.ms/POINTING', readonly=False)
+        mock_tables.table.assert_called_once_with('ea25_cal_small_after_fixed.split.ms/POINTING', readonly=False)
         mock_tables.table.return_value.getcol.assert_called_once_with('MESSAGE')
         mock_tables.table.return_value.addrows.assert_called_once_with(nrows=1)
         mock_tables.table.return_value.putcol.assert_called_once_with(columnname="MESSAGE", value='pnt_tbl:fixed', startrow=0)

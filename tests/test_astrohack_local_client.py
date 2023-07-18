@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import patch
-from my_module import astrohack_local_client
+from astrohack.astrohack_client import astrohack_local_client
 """
 In this unit test, we use the unittest module to define a test case class TestAstrohackLocalClient.
 The astrohack_local_client function is imported from the module my_module. 

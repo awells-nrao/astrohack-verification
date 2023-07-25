@@ -9,10 +9,10 @@ from numba.core import types
 from casacore import tables as ctables
 from astrohack._utils._imaging import _calculate_parallactic_angle_chunk
 from astrohack._utils._logger._astrohack_logger import _get_astrohack_logger
-from astrohack._utils._io import _write_meta_data
+from astrohack._utils._dio import _write_meta_data
 from astrohack._utils._algorithms import _get_grid_parms, _significant_digits
 
-from astrohack._utils._io import _load_point_file
+from astrohack._utils._dio import _load_point_file
 
 
 def _extract_holog_chunk(extract_holog_params):
@@ -102,7 +102,7 @@ def _extract_holog_chunk(extract_holog_params):
 
     pnt_ant_dict = _load_point_file(pnt_name, map_ant_name_list, dask_load=False)
     pnt_map_dict = _extract_pointing_chunk(map_ant_name_list, time_vis, pnt_ant_dict)
-    grid_parms = _get_grid_parms(vis_map_dict,pnt_map_dict, ant_names)
+    grid_parms = _get_grid_parms(vis_map_dict, pnt_map_dict, ant_names)
     
     ### To DO:
     ################### Average multiple repeated samples
@@ -364,12 +364,6 @@ def _create_holog_file(
             
             holog_file = holog_name
 
-            if overwrite is False:
-                if os.path.exists(holog_file):
-                    logger.error(
-                        "Holog file {file} exists. To overwite set the overwrite=True option in extract_holog or remove current file.".format(file=holog_file))
-                    raise
-
             logger.info(
                 "Writing holog file to {file}".format(file=holog_file)
             )
@@ -461,7 +455,7 @@ def _create_holog_obs_dict(pnt_dict,baseline_average_distance,baseline_average_n
                 #Select reference antennas by n closest antennas
                 if baseline_average_nearest != 'all':
                     sub_ref_ant_set = []
-                    nearest_ant_list = df_mat.loc[map_ant_key,:].loc[list(ref_ant_set)].sort_values().index.tolist()[1:baseline_average_nearest+1] #Skip first value since that is the antenna itself (distance=0)
+                    nearest_ant_list = df_mat.loc[map_ant_key,:].loc[list(ref_ant_set)].sort_values().index.tolist()[0:baseline_average_nearest]
                     for ref_ant in ref_ant_set:
                         if ref_ant in nearest_ant_list:
                             sub_ref_ant_set.append(ref_ant)
@@ -544,7 +538,8 @@ def _create_holog_meta_data(holog_file, holog_dict, input_params):
                             n_pixs.append(xds.attrs["grid_parms"]["n_pix"])
                             telescope_names.append(xds.attrs['telescope_name'])
     
-    cell_sizes_sigfigs =  _significant_digits(cell_sizes,digits=3)
+    cell_sizes_sigfigs =  _significant_digits(cell_sizes, digits=3)
+
     if not (len(set(cell_sizes_sigfigs)) == 1):
         logger.error('Cell size not consistant: ' + str(cell_sizes))
         raise
@@ -556,7 +551,9 @@ def _create_holog_meta_data(holog_file, holog_dict, input_params):
     if not (len(set(telescope_names)) == 1):
         logger.error('Telescope name not consistant: ' + str(telescope_names))
         raise
+
     output_meta_file = "{name}/{ext}".format(name=holog_file, ext=".holog_json")
+    
     try:
         with open(output_meta_file, "w") as json_file:
             json.dump(ant_holog_dict, json_file)
@@ -564,12 +561,14 @@ def _create_holog_meta_data(holog_file, holog_dict, input_params):
     except Exception as error:
         logger.error("[_create_holog_meta_data] {error}".format(error=error))
 
-    meta_data = {'cell_size': np.mean(cell_sizes),
-                 'n_pix': n_pixs[0],
-                 'telescope_name': telescope_names[0]}
+    meta_data = {
+        'cell_size': np.mean(cell_sizes),
+        'n_pix': n_pixs[0],
+        'telescope_name': telescope_names[0]
+    }
+
     meta_data.update(input_params)
-    holog_attr_file = "{name}/{ext}".format(name=holog_file, ext=".holog_attr")
-    _write_meta_data('extract_holog', holog_attr_file, meta_data)
-    point_attr_file = "{name}/{ext}".format(name=input_params['point_name'], ext=".point_attr")
-    _write_meta_data('extract_holog', point_attr_file, input_params)
+    
+    return meta_data
+    
 

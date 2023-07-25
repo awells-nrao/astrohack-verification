@@ -1,0 +1,43 @@
+# This workflow will install Python dependencies, run tests and lint with a single version of Python
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: Python unit tests
+
+on:
+  push:
+    paths-ignore:
+      - '**.md'
+      - '**.rst'
+      - 'disabled_tests/*.py'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.8"]
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python 3
+      uses: actions/setup-python@v3
+      with:
+          python-version: ${{ matrix.python-version }}
+    - name: Install dependencies with pip
+      run: |
+        python -m pip install --upgrade pip
+        pip install .
+    - name: Test with pytest
+      run: |
+        pytest -v tests/test_astrohack_local_client.py --html=astrohack-report.html --cov=astrohack --no-cov-on-fail --cov-report=html --doctest-modules --junitxml=junit/test-results-${{ matrix.python-version }}.xml
+    - name: Upload pytest test results
+      uses: actions/upload-artifact@v3
+      with:
+          name: pytest-results-${{ matrix.python-version }}
+          path: |
+            junit/test-results-${{ matrix.python-version }}.xml
+            ./astrohack-report.html
+        # Use always() to always run this step to publish test results when there are test failures
+      if: ${{ always() }}
+        

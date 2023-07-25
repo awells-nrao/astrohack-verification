@@ -5,6 +5,7 @@
 ![macOS Tests](https://github.com/casangi/astrohack/actions/workflows/python-testing-macos.yml/badge.svg)
 ![Published](https://github.com/casangi/astrohack/actions/workflows/pythonpublish.yml/badge.svg)
 [![Documentation Status](https://readthedocs.org/projects/astrohack/badge/?version=latest)](https://astrohack.readthedocs.io/en/latest/?badge=latest)
+([![Python unit tests](https://github.com/smcastro/astrohack-verification/actions/workflows/python-unit-tests.yml/badge.svg?branch=main&event=pull_request)](https://github.com/smcastro/astrohack-verification/actions/workflows/python-unit-tests.yml))
 
 astroHack (Holography Antenna Commissioning Kit) is a Python package that produces antenna aperture images and panel adjustment corrections from calibrated holography measurement sets. Initially, it will support holography data from the VLA and ALMA, with the future goal of supporting the ngVLA. Much of the core functionality from the following AIPS tasks has been ported: UVHOL, HOLOG, and PANEL. astroHack enables parallel execution by using Dask and efficient single-threaded performance by making use of Numba.
 
